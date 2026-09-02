@@ -9,7 +9,3 @@ services:
     working_dir: /activities
     stdin_open: true
     tty: true
-#    cap_add:
-#      - SYS_PTRACE
-#    security_opt:
-#      - seccomp:unconfined
