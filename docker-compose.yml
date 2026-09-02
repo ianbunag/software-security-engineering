@@ -1,0 +1,15 @@
+services:
+  lab:
+    platform: linux/386
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    volumes:
+      - ./activities:/activities
+    working_dir: /activities
+    stdin_open: true
+    tty: true
+#    cap_add:
+#      - SYS_PTRACE
+#    security_opt:
+#      - seccomp:unconfined
