@@ -4,7 +4,7 @@
   vars:
     domain: "{{ lookup('env', 'DOMAIN') }}"
     repository_domain: "cmpe-279.{{ domain }}"
-    cloudflare_update_dns_token_name: "{{ lookup('env', 'CLOUDFLARE_UPDATE_DNS_TOKEN_NAME') }}"
+    cloudflare_update_dns_token_secret_name: "{{ lookup('env', 'CLOUDFLARE_UPDATE_DNS_TOKEN_SECRET_NAME') }}"
     git_repository: "{{ lookup('env', 'GIT_REPOSITORY') }}"
     git_repository_dir: "{{ ansible_env.HOME }}/Documents/cmpe-279-software-security-technologies"
 
@@ -13,9 +13,9 @@
       assert:
         that:
           - domain | length > 0
-          - cloudflare_update_dns_token_name | length > 0
+          - cloudflare_update_dns_token_secret_name | length > 0
           - git_repository | length > 0
-        fail_msg: "Required environment variables DOMAIN, CLOUDFLARE_UPDATE_DNS_TOKEN_NAME, or GIT_REPOSITORY are missing."
+        fail_msg: "Required environment variables DOMAIN, CLOUDFLARE_UPDATE_DNS_TOKEN_SECRET_NAME, or GIT_REPOSITORY are missing."
 
     - name: Initial environment bootstrap
       import_tasks: tasks/initial-environment-bootstrap.yml

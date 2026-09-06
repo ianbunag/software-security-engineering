@@ -1,7 +1,7 @@
 # Targeted for execution with Ansible 2.9.27.
 ---
 - name: Fetch Cloudflare API token from GCP Secret Manager
-  command: "gcloud secrets versions access latest --secret={{ cloudflare_update_dns_token_name }}"
+  command: "gcloud secrets versions access latest --secret={{ cloudflare_update_dns_token_secret_name }}"
   register: cloudflare_update_dns_token_result
   changed_when: false
   no_log: true
