@@ -1,14 +1,11 @@
-terraform {
-  required_version = "~> 1.16.0"
-
-  required_providers {
-    google = {
-      source  = "hashicorp/google"
-      version = "~> 8.1.0"
-    }
-    cloudflare = {
-      source  = "cloudflare/cloudflare"
-      version = "~> 5.24"
-    }
+resource "cloudflare_dns_record" "vm" {
+  zone_id = var.cloudflare_zone_id
+  name    = local.slug
+  type    = "A"
+  content = "192.0.2.1"
+  ttl     = 1
+  comment = local.git_repository
+  lifecycle {
+    ignore_changes = [content]
   }
 }
