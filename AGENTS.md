@@ -23,6 +23,7 @@ Refer to README.md for how to work with this codebase (starting services, builds
 ## Code style
 
 - Follow the existing conventions and style of the file you're modifying, and the repository's coding standards.
+- Ansible playbooks and task files are targeted for execution with Ansible 2.9.27.
 - Prefer a functional approach — favor pure functions, immutability, and avoiding shared mutable state — where the codebase doesn't dictate otherwise.
 - Comments explain *why* the code is the way it is, never *what* it does — the *what* is redundant. Use a brief *what* only for genuinely non-obvious logic.
 - Comments that are complete sentences end with a period.

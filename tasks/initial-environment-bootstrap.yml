@@ -1,0 +1,35 @@
+# Targeted for execution with Ansible 2.9.27.
+---
+- name: Install packages
+  apt:
+    name:
+      - build-essential
+      - gcc-multilib
+      - gdb
+      - tar
+      - flawfinder
+      - valgrind
+      - git
+    state: present
+    update_cache: yes
+    install_recommends: no
+  become: true
+
+- name: Create Documents directory
+  file:
+    path: "{{ ansible_env.HOME }}/Documents"
+    state: directory
+    mode: "0755"
+
+- name: Clone git repository into Documents
+  git:
+    repo: "{{ git_repository }}"
+    dest: "{{ git_repository_dir }}"
+    accept_hostkey: yes
+
+- name: Mark bootstrap as completed
+  file:
+    path: /var/log/ansible-bootstrap.done
+    state: touch
+    mode: "0644"
+  become: true
