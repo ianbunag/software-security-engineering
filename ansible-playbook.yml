@@ -1,5 +1,160 @@
+# Targeted for execution with Ansible 2.9.27.
 ---
 - hosts: localhost
+  vars:
+    domain: "{{ lookup('env', 'DOMAIN') }}"
+    repository_domain: "cmpe-279.{{ domain }}"
+    cloudflare_update_dns_token_name: "{{ lookup('env', 'CLOUDFLARE_UPDATE_DNS_TOKEN_NAME') }}"
+    git_repository: "{{ lookup('env', 'GIT_REPOSITORY') }}"
+    git_repository_dir: "{{ ansible_env.HOME }}/Documents/cmpe-279-software-security-technologies"
+
   tasks:
-    - debug:
-        msg: "Ansible pull test successful!"
+    # --- One-Time Initial Bootstrap ---
+    - name: Check if bootstrap has already completed
+      stat:
+        path: /var/log/ansible-bootstrap.done
+      register: bootstrap_marker
+
+    - name: Run initial environment bootstrap
+      when: not bootstrap_marker.stat.exists
+      block:
+        - name: Install build and security packages
+          apt:
+            name:
+              - build-essential
+              - gcc-multilib
+              - gdb
+              - tar
+              - flawfinder
+              - valgrind
+              - git
+            state: present
+            update_cache: yes
+            install_recommends: no
+          become: true
+
+        - name: Create Documents directory
+          file:
+            path: "{{ ansible_env.HOME }}/Documents"
+            state: directory
+            mode: "0755"
+
+        - name: Clone git repository into Documents
+          git:
+            repo: "{{ git_repository }}"
+            dest: "{{ git_repository_dir }}"
+            accept_hostkey: yes
+
+        - name: Mark bootstrap as completed
+          file:
+            path: /var/log/ansible-bootstrap.done
+            state: touch
+            mode: "0644"
+          become: true
+
+    # --- Recurrent Tasks (Executed on every run) ---
+    - name: Validate required environment variables are exported
+      assert:
+        that:
+          - domain | length > 0
+          - cloudflare_update_dns_token_name | length > 0
+          - git_repository | length > 0
+        fail_msg: "Required environment variables DOMAIN, CLOUDFLARE_UPDATE_DNS_TOKEN_NAME, or GIT_REPOSITORY are missing."
+
+    - name: Check repository working tree status
+      command: git status --porcelain
+      args:
+        chdir: "{{ git_repository_dir }}"
+      register: git_status_check
+      changed_when: false
+      failed_when: false
+
+    - name: Pull latest repository changes if working tree is clean
+      command: git pull
+      args:
+        chdir: "{{ git_repository_dir }}"
+      when:
+        - git_status_check.rc == 0
+        - git_status_check.stdout == ""
+
+    - name: Fetch Cloudflare API token from GCP Secret Manager
+      command: "gcloud secrets versions access latest --secret={{ cloudflare_update_dns_token_name }}"
+      register: cloudflare_update_dns_token_result
+      changed_when: false
+      no_log: true
+
+    - name: Set runtime API token fact
+      set_fact:
+        cloudflare_update_dns_token: "{{ cloudflare_update_dns_token_result.stdout | trim }}"
+      no_log: true
+
+    - name: Retrieve Cloudflare Zone ID
+      uri:
+        url: "https://api.cloudflare.com/client/v4/zones?name={{ domain }}"
+        method: GET
+        headers:
+          Authorization: "Bearer {{ cloudflare_update_dns_token }}"
+          Content-Type: "application/json"
+        return_content: yes
+        status_code: 200
+      register: cloudflare_zone_response
+      failed_when: not cloudflare_zone_response.json.success or (cloudflare_zone_response.json.result | length == 0)
+      no_log: true
+
+    - name: Set runtime Zone ID fact
+      set_fact:
+        cloudflare_zone_id: "{{ cloudflare_zone_response.json.result[0].id }}"
+
+    - name: Retrieve Cloudflare DNS Record ID for subdomain
+      uri:
+        url: "https://api.cloudflare.com/client/v4/zones/{{ cloudflare_zone_id }}/dns_records?type=A&name={{ repository_domain }}"
+        method: GET
+        headers:
+          Authorization: "Bearer {{ cloudflare_update_dns_token }}"
+          Content-Type: "application/json"
+        return_content: yes
+        status_code: 200
+      register: cloudflare_record_response
+      failed_when: not cloudflare_record_response.json.success or (cloudflare_record_response.json.result | length == 0)
+      no_log: true
+
+    - name: Set runtime Record ID fact
+      set_fact:
+        cloudflare_record_id: "{{ cloudflare_record_response.json.result[0].id }}"
+
+    - name: Retrieve current GCP VM external IP address
+      uri:
+        url: "http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/access-configs/0/external-ip"
+        method: GET
+        headers:
+          Metadata-Flavor: "Google"
+        return_content: yes
+        status_code: 200
+      register: external_ip_response
+
+    - name: Set runtime external IP fact
+      set_fact:
+        external_ip: "{{ external_ip_response.content | trim }}"
+
+    - name: Update Cloudflare DNS A record
+      uri:
+        url: "https://api.cloudflare.com/client/v4/zones/{{ cloudflare_zone_id }}/dns_records/{{ cloudflare_record_id }}"
+        method: PATCH
+        headers:
+          Authorization: "Bearer {{ cloudflare_update_dns_token }}"
+          Content-Type: "application/json"
+        body_format: json
+        body:
+          type: "A"
+          name: "{{ repository_domain }}"
+          content: "{{ external_ip }}"
+          ttl: 1 # Automatic TTL.
+          proxied: false
+        status_code: 200
+      register: update_cloudflare_dns_a_record_response
+      failed_when: not update_cloudflare_dns_a_record_response.json.success
+      no_log: true
+
+    - name: Confirm DNS update success
+      debug:
+        msg: "Successfully updated {{ repository_domain }} A record to {{ external_ip }}."
