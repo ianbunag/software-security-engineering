@@ -17,14 +17,8 @@
           - git_repository | length > 0
         fail_msg: "Required environment variables DOMAIN, CLOUDFLARE_UPDATE_DNS_TOKEN_NAME, or GIT_REPOSITORY are missing."
 
-    - name: Check if bootstrap has already completed
-      stat:
-        path: /var/log/ansible-bootstrap.done
-      register: bootstrap_marker
-
     - name: Initial environment bootstrap
       import_tasks: tasks/initial-environment-bootstrap.yml
-      when: not bootstrap_marker.stat.exists
 
     - name: Sync git repository
       import_tasks: tasks/sync-git-repository.yml

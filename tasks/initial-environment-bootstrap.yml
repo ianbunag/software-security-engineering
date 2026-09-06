@@ -12,6 +12,7 @@
       - git
     state: present
     update_cache: yes
+    cache_valid_time: 86400
     install_recommends: no
   become: true
 
@@ -26,10 +27,3 @@
     repo: "{{ git_repository }}"
     dest: "{{ git_repository_dir }}"
     accept_hostkey: yes
-
-- name: Mark bootstrap as completed
-  file:
-    path: /var/log/ansible-bootstrap.done
-    state: touch
-    mode: "0644"
-  become: true

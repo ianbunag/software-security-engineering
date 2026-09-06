@@ -74,10 +74,16 @@
       ttl: 1 # Automatic TTL.
       proxied: false
     status_code: 200
+  when: cloudflare_record_response.json.result[0].content != external_ip
   register: update_cloudflare_dns_a_record_response
   failed_when: not update_cloudflare_dns_a_record_response.json.success
   no_log: true
 
-- name: Confirm DNS update success
+- name: Confirm DNS update status
   debug:
-    msg: "Successfully updated {{ repository_domain }} A record to {{ external_ip }}."
+    msg: >-
+      {{
+        'Updated ' + repository_domain + ' A record to ' + external_ip + '.'
+        if (update_cloudflare_dns_a_record_response is changed or (update_cloudflare_dns_a_record_response is defined and not update_cloudflare_dns_a_record_response.skipped | default(false)))
+        else repository_domain + ' A record is already up to date (' + external_ip + ').'
+      }}
