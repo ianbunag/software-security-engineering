@@ -62,39 +62,9 @@ resource "google_compute_instance" "vm" {
     ssh_username                            = var.ssh_username
   }
 
-  metadata_startup_script = <<-EOF
-    #!/bin/bash
-    set -euo pipefail
-
-    if ! command -v ansible >/dev/null 2>&1; then
-      apt-add-repository -y ppa:ansible/ansible-2.9
-      apt-get update
-      apt-get install -y ansible
-    fi
-
-    SSH_USER_HOME=$(eval echo "~${var.ssh_username}")
-    SSH_USER_DIR="$SSH_USER_HOME/.ssh"
-    SSH_USER_KEY_PATH="$SSH_USER_DIR/id_ed25519"
-
-    if [ ! -d "$SSH_USER_DIR" ]; then
-      install -d -m 700 -o "${var.ssh_username}" -g "${var.ssh_username}" "$SSH_USER_DIR"
-    fi
-
-    if [ ! -f "$SSH_USER_KEY_PATH" ]; then
-      sudo -u "${var.ssh_username}" -H bash -c 'umask 077; gcloud secrets versions access latest --secret="${local.deploy_key_secret_name}" > "'"$SSH_USER_KEY_PATH"'"'
-      chmod 600 "$SSH_USER_KEY_PATH"
-    fi
-
-    # Pre-populate GitHub's host keys so non-interactive git/ssh commands don't block on authenticity prompts.
-    if [ ! -f "$SSH_USER_DIR/known_hosts" ] || ! grep -q "github.com" "$SSH_USER_DIR/known_hosts"; then
-      sudo -u "${var.ssh_username}" -H bash -c 'ssh-keyscan -t rsa,ecdsa,ed25519 github.com >> "'"$SSH_USER_DIR"'/known_hosts"' 2>/dev/null
-      chmod 644 "$SSH_USER_DIR/known_hosts"
-    fi
-
-    export ANSIBLE_LOG_PATH=/tmp/ansible.log
-    export GIT_SSH_COMMAND="ssh -i $SSH_USER_KEY_PATH -o UserKnownHostsFile=$SSH_USER_DIR/known_hosts"
-
-    ansible-pull -U "${local.git_repository}" ansible-playbook.yml
-    ansible-pull -U "${local.git_repository}" ansible-ssh-user.yml
-  EOF
+  metadata_startup_script = templatefile("${path.module}/scripts/startup.sh", {
+    SSH_USERNAME           = var.ssh_username
+    DEPLOY_KEY_SECRET_NAME = local.deploy_key_secret_name
+    GIT_REPOSITORY         = local.git_repository
+  })
 }

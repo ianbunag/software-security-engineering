@@ -35,7 +35,7 @@
     body_format: json
     body:
       type: "A"
-      name: "{{ vm_domain }}"
+      name: "{{ domain }}"
       content: "{{ external_ip }}"
       ttl: 1 # Automatic TTL.
       proxied: false
@@ -48,7 +48,7 @@
   debug:
     msg: >-
       {{
-        'Updated ' + vm_domain + ' A record to ' + external_ip + '.'
+        'Updated ' + domain + ' A record to ' + external_ip + '.'
         if (update_cloudflare_dns_a_record_response is changed or (update_cloudflare_dns_a_record_response is defined and not update_cloudflare_dns_a_record_response.skipped | default(false)))
-        else vm_domain + ' A record is already up to date (' + external_ip + ').'
+        else domain + ' A record is already up to date (' + external_ip + ').'
       }}

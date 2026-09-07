@@ -10,7 +10,3 @@
   vars:
     gcp_metadata_attribute: "{{ item }}"
     gcp_metadata_fact: "{{ item }}"
-
-- name: Set derived facts
-  set_fact:
-    vm_domain: "cmpe-279.{{ domain }}"
