@@ -1,6 +1,6 @@
 # CMPE-279 Software Security Technologies
 
-## Setup Instructions
+## Prerequisites
 
 ### 1. Generate Deploy Key
 
