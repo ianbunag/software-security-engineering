@@ -1,27 +1,15 @@
 # Targeted for execution with Ansible 2.9.27.
 ---
 - hosts: localhost
-  vars:
-    domain: "{{ lookup('env', 'DOMAIN') }}"
-    repository_domain: "cmpe-279.{{ domain }}"
-    cloudflare_update_dns_token_secret_name: "{{ lookup('env', 'CLOUDFLARE_UPDATE_DNS_TOKEN_SECRET_NAME') }}"
-    git_repository: "{{ lookup('env', 'GIT_REPOSITORY') }}"
-    git_repository_dir: "{{ ansible_env.HOME }}/Documents/cmpe-279-software-security-technologies"
-
   tasks:
-    - name: Validate required environment variables are exported
-      assert:
-        that:
-          - domain | length > 0
-          - cloudflare_update_dns_token_secret_name | length > 0
-          - git_repository | length > 0
-        fail_msg: "Required environment variables DOMAIN, CLOUDFLARE_UPDATE_DNS_TOKEN_SECRET_NAME, or GIT_REPOSITORY are missing."
+    - name: Load instance metadata variables
+      include_tasks: ansible/variables.yml
 
     - name: Initial environment bootstrap
-      import_tasks: tasks/initial-environment-bootstrap.yml
+      include_tasks: ansible/initial-environment-bootstrap.yml
 
     - name: Sync git repository
-      import_tasks: tasks/sync-git-repository.yml
+      include_tasks: ansible/sync-git-repository.yml
 
     - name: Update Cloudflare DNS A record
-      import_tasks: tasks/update-cloudflare-dns-a-record.yml
+      include_tasks: ansible/update-cloudflare-dns-a-record.yml

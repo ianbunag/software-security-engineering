@@ -18,12 +18,36 @@
 
 - name: Create Documents directory
   file:
-    path: "{{ ansible_env.HOME }}/Documents"
+    path: "{{ documents_dir }}"
     state: directory
     mode: "0755"
+
+- name: Configure git user name
+  git_config:
+    name: user.name
+    scope: global
+    value: "{{ git_name }}"
+
+- name: Configure git user email
+  git_config:
+    name: user.email
+    scope: global
+    value: "{{ git_email }}"
 
 - name: Clone git repository into Documents
   git:
     repo: "{{ git_repository }}"
     dest: "{{ git_repository_dir }}"
     accept_hostkey: yes
+
+- name: Configure shell aliases
+  lineinfile:
+    path: "{{ ansible_env.HOME }}/.bashrc"
+    line: "{{ item }}"
+    state: present
+    create: yes
+    mode: "0644"
+  loop:
+    - 'alias history="history 1"'
+    - 'alias h="history"'
+    - 'alias g="git"'
