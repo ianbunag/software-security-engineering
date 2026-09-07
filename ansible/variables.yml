@@ -18,6 +18,9 @@
   set_fact:
     vm_domain: "cmpe-279.{{ domain }}"
     documents_dir: "{{ ansible_env.HOME }}/Documents"
+
+- name: Set dependent derived facts
+  set_fact:
     git_repository_dir: "{{ documents_dir }}/cmpe-279-software-security-technologies"
 
 - name: Validate required variables

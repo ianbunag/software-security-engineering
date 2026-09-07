@@ -28,7 +28,6 @@ resource "google_secret_manager_secret_iam_member" "vm_secrets" {
 resource "google_compute_instance" "vm" {
   name                      = local.slug
   machine_type              = "e2-micro"
-  deletion_protection       = true
   allow_stopping_for_update = true
 
   boot_disk {
@@ -72,6 +71,12 @@ resource "google_compute_instance" "vm" {
       apt-get install -y ansible
     fi
 
+    # Ensure user account exists so the script can proceed immediately;
+    # the GCE accounts daemon will populate ~/.ssh/authorized_keys from metadata.
+    if ! id "${var.ssh_username}" >/dev/null 2>&1; then
+      useradd -m -s /bin/bash -G sudo "${var.ssh_username}"
+    fi
+
     USER_HOME=$(eval echo "~${var.ssh_username}")
     SSH_DIR="$USER_HOME/.ssh"
     KEY_PATH="$SSH_DIR/id_ed25519"
@@ -81,7 +86,7 @@ resource "google_compute_instance" "vm" {
     fi
 
     if [ ! -f "$KEY_PATH" ]; then
-      sudo -u "${var.ssh_username}" -H gcloud secrets versions access latest --secret="${local.deploy_key_secret_name}" > "$KEY_PATH"
+      sudo -u "${var.ssh_username}" -H bash -c 'gcloud secrets versions access latest --secret="cmpe-279-ianbunag-dev-github-deploy-key" > "'"$KEY_PATH"'"'
       chmod 600 "$KEY_PATH"
     fi
 
