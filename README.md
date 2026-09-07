@@ -27,3 +27,30 @@ Store the private key in Google Cloud Secret Manager:
 - **Replication policy**:
   - **Manually manage locations for this secret**: Enabled
   - **Location(s)**: `us-west1`
+
+## Remote Development
+
+### CLion Deployment Configuration
+
+You can configure CLion for remote development via SFTP file synchronization using JetBrains' built-in deployment tooling. For general reference, see the [CLion Deployment Settings Documentation](https://www.jetbrains.com/help/clion/settings-deployment.html).
+
+1. In CLion, navigate to **Tools** > **Deployment** > **Configuration...**.
+2. Click **+** to add a new server configuration.
+
+#### Connection Settings
+
+| Setting | Value |
+| :--- | :--- |
+| **Name** | `cmpe-279.ianbunag.dev` |
+| **Type** | `SFTP` |
+| **Root path** | *Autodetect* |
+| **Use rsync for download/upload/sync** | Enabled |
+
+#### Mappings
+
+Switch to the **Mappings** tab:
+
+| Setting | Value |
+| :--- | :--- |
+| **Local path** | `<Project Root>` |
+| **Deployment path** | `Documents/remote-cmpe-279-software-security-technologies` |
