@@ -11,41 +11,6 @@
     cloudflare_update_dns_token: "{{ cloudflare_update_dns_token_result.stdout | trim }}"
   no_log: true
 
-#@TODO
-#- name: Retrieve Cloudflare Zone ID
-#  uri:
-#    url: "https://api.cloudflare.com/client/v4/zones?name={{ domain }}"
-#    method: GET
-#    headers:
-#      Authorization: "Bearer {{ cloudflare_update_dns_token }}"
-#      Content-Type: "application/json"
-#    return_content: yes
-#    status_code: 200
-#  register: cloudflare_zone_response
-#  failed_when: not cloudflare_zone_response.json.success or (cloudflare_zone_response.json.result | length == 0)
-#  no_log: true
-
-#- name: Set runtime Zone ID fact
-#  set_fact:
-#    cloudflare_zone_id: "{{ cloudflare_zone_response.json.result[0].id }}"
-
-#- name: Retrieve Cloudflare DNS Record ID for subdomain
-#  uri:
-#    url: "https://api.cloudflare.com/client/v4/zones/{{ cloudflare_zone_id }}/dns_records?type=A&name={{ vm_domain }}"
-#    method: GET
-#    headers:
-#      Authorization: "Bearer {{ cloudflare_update_dns_token }}"
-#      Content-Type: "application/json"
-#    return_content: yes
-#    status_code: 200
-#  register: cloudflare_record_response
-#  failed_when: not cloudflare_record_response.json.success or (cloudflare_record_response.json.result | length == 0)
-#  no_log: true
-#
-#- name: Set runtime Record ID fact
-#  set_fact:
-#    cloudflare_record_id: "{{ cloudflare_record_response.json.result[0].id }}"
-
 - name: Retrieve current GCP VM external IP address
   uri:
     url: "http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/access-configs/0/external-ip"

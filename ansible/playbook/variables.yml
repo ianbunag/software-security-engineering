@@ -1,0 +1,16 @@
+# Targeted for execution with Ansible 2.9.27.
+---
+- name: Fetch instance metadata attributes
+  include_tasks: ansible/fetch-gcp-instance-attribute.yml
+  loop:
+    - cloudflare_update_dns_token_secret_name
+    - cloudflare_zone_id
+    - cloudflare_record_id
+    - domain
+  vars:
+    gcp_metadata_attribute: "{{ item }}"
+    gcp_metadata_fact: "{{ item }}"
+
+- name: Set derived facts
+  set_fact:
+    vm_domain: "cmpe-279.{{ domain }}"
