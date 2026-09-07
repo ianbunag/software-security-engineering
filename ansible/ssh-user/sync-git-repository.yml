@@ -1,5 +1,23 @@
 # Targeted for execution with Ansible 2.9.27.
 ---
+- name: Configure git user name
+  git_config:
+    name: user.name
+    scope: global
+    value: "{{ git_name }}"
+
+- name: Configure git user email
+  git_config:
+    name: user.email
+    scope: global
+    value: "{{ git_email }}"
+
+- name: Clone git repository into documents
+  git:
+    repo: "{{ git_repository }}"
+    dest: "{{ git_repository_dir }}"
+    accept_hostkey: yes
+
 - name: Check repository working tree status
   command: git status --porcelain
   args:

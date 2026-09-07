@@ -1,28 +1,16 @@
 # Targeted for execution with Ansible 2.9.27.
 ---
-- name: Create Documents directory
+- name: Create documents directory
   file:
     path: "{{ documents_dir }}"
     state: directory
     mode: "0755"
 
-- name: Configure git user name
-  git_config:
-    name: user.name
-    scope: global
-    value: "{{ git_name }}"
-
-- name: Configure git user email
-  git_config:
-    name: user.email
-    scope: global
-    value: "{{ git_email }}"
-
-- name: Clone git repository into Documents
-  git:
-    repo: "{{ git_repository }}"
-    dest: "{{ git_repository_dir }}"
-    accept_hostkey: yes
+- name: Create remote development directory
+  file:
+    path: "{{ remote_development_dir }}"
+    state: directory
+    mode: "0755"
 
 - name: Configure shell aliases
   lineinfile:
