@@ -41,7 +41,6 @@ You can configure CLion for remote development via SFTP file synchronization usi
 
 | Setting | Value |
 | :--- | :--- |
-| **Name** | `cmpe-279.ianbunag.dev` |
 | **Type** | `SFTP` |
 | **Root path** | *Autodetect* |
 | **Use rsync for download/upload/sync** | Enabled |
