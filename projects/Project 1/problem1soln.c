@@ -15,7 +15,7 @@ int main()
 
       a1[something] = 8;
     */
-    static int offset[17] = {8, 15, 17, 22, 26, 29, 35, 36, 43, 44, 51, 53, 57, 62, 64, 71};
+    static int offset[17] = {8, 15, 17, 22, 26, 29, 35, 36, 43, 44, 50, 53, 57, 62, 64, 71};
     for (int i = 0; i < sizeof(offset); i++)
     {
         a1[offset[i]] = 8;
