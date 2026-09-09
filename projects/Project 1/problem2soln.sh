@@ -1,0 +1,1 @@
+printf '12345\nPPPPaaaaSSSS\x00\x00\x00\x00uuuuSSSSrrrr\x00\x00\x00\x00PPPPaaaaSSSS\n' | ./problem2soln
