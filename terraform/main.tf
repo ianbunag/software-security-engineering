@@ -52,6 +52,7 @@ resource "google_compute_instance" "vm" {
 
   metadata = {
     ssh-keys                                = "${var.ssh_username}:${trimspace(file(pathexpand(var.ssh_public_key_file)))}"
+    block-project-ssh-keys                  = true
     domain                                  = local.domain
     cloudflare_update_dns_token_secret_name = var.cloudflare_update_dns_token_secret_name
     git_repository                          = local.git_repository
