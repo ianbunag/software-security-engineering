@@ -4,7 +4,6 @@
 int IsPasswordOK(void)
 {
     char Password [36];
-
     (void) gets(Password);
     return 0 == strcmp (Password, "goodpass");
 }
