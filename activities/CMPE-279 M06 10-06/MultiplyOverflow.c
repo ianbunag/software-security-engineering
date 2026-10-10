@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
 #include <string.h>
 
 struct item
@@ -53,8 +55,35 @@ int main(int argc, char* argv[])
             puts("Invalid count, please re-enter...");
             continue;
         }
+        /**
+         * Validate that item cost does not exceed maximum int value.
+         *
+         * Test with:
+         * $ 3
+         * $ 1000000000
+         */
+        if (itemlist[choice].cost > 0 && number > INT_MAX / itemlist[choice].cost)
+        {
+            puts("Invalid count, please re-enter...");
+            continue;
+        }
+        int item_total = number * itemlist[choice].cost;
+        /**
+         * Validate that balance does not exceed maximum int value when item cost is added.
+         *
+         * Test with:
+         * $ 0
+         * $ 429496729
+         * $ 0
+         * $ 1
+         */
+        if (INT_MAX - balance < item_total)
+        {
+            puts("Invalid count, please re-enter...");
+            continue;
+        }
         itemlist[choice].count = number;
-        balance += itemlist[choice].count * itemlist[choice].cost;
+        balance += item_total;
         for (i = 0; i < 4; i++)
             printf("%s ", label[i]);
         printf("\n");
