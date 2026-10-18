@@ -85,3 +85,35 @@ Switch to the **Mappings** tab:
 | :--- | :--- |
 | **Local path** | `<project-root>` |
 | **Deployment path** | `/` |
+
+### Enabling IntelliSense
+
+To activate code completion and IntelliSense in CLion:
+
+1. Open the source file containing the `main` function.
+2. Click the green **Run** (play) button in the editor gutter beside `main`.
+
+This allows CLion to resolve the execution context and index project symbols, enabling full code navigation, diagnostics, and auto-completion.
+
+## Connecting to the Box
+
+### 1. SSH Configuration
+
+Add the host entry to your `~/.ssh/config`:
+
+```ssh-config
+Host cmpe-279
+    HostName cmpe-279.<root_domain>
+    StrictHostKeyChecking no
+    UserKnownHostsFile /dev/null
+    RequestTTY yes
+    RemoteCommand cd ~/Documents/remote-cmpe-279-software-security-technologies && exec $SHELL -l
+```
+
+### 2. Connect via SSH
+
+Connect directly using the alias:
+
+```bash
+ssh cmpe-279
+```
