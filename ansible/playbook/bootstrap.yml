@@ -16,3 +16,11 @@
     cache_valid_time: 86400
     install_recommends: no
   become: true
+
+- name: Set core_pattern for AFL
+  sysctl:
+    name: kernel.core_pattern
+    value: core
+    state: present
+    reload: yes
+  become: true
