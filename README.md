@@ -117,3 +117,37 @@ Connect directly using the alias:
 ```bash
 ssh cmpe-279
 ```
+
+## Background Shells with tmux
+
+Manage persistent terminal sessions that remain active across disconnects:
+
+### 1. Create a New Session
+
+```bash
+tmux new -s <session_name>
+```
+
+### 2. Background (Detach) a Session
+
+Press `Ctrl` + `b`, then press `d`.
+
+### 3. Exit and Kill a Session (from Inside)
+
+Exit the active shell session directly:
+
+```bash
+exit
+```
+
+### 4. List Sessions
+
+```bash
+tmux ls
+```
+
+### 5. Kill a Session (from Outside)
+
+```bash
+tmux kill-session -t <session_name>
+```
