@@ -1,6 +1,9 @@
 # Targeted for execution with Ansible.
 ---
 - hosts: localhost
+  vars:
+    # Ansible's pipx virtual environment under /root is inaccessible to unprivileged become users.
+    ansible_python_interpreter: /usr/bin/python3
   tasks:
     - name: Load instance metadata variables
       include_tasks: ssh-user/variables.yml
