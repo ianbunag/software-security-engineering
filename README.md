@@ -34,6 +34,16 @@ Store the private key in Google Cloud Secret Manager:
   - **Manually manage locations for this secret**: Enabled
   - **Location(s)**: `us-west1`
 
+### 4. Create Remote GUI Password Secret
+
+Store the remote GUI password for `vm_jammy` in Google Cloud Secret Manager:
+
+- **Name**: Value of `jammy_gui_secret_name` in [terraform/locals.tf](terraform/locals.tf) (`cmpe-279-jammy-gui-password`)
+- **Secret value**: A secure password of your choice for the remote GUI desktop login
+- **Replication policy**:
+  - **Manually manage locations for this secret**: Enabled
+  - **Location(s)**: `us-west1`
+
 ## Terraform Lab Provisioning
 
 This repository's [`terraform/`](./terraform/) directory is designed as a reusable module to provision the security lab environment on Google Cloud Platform with Cloudflare DNS routing:
