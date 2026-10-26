@@ -7,9 +7,37 @@
       - xrdp
       - xorgxrdp
       - dbus-x11
+      - software-properties-common
     state: present
     update_cache: yes
     cache_valid_time: 86400
+  become: true
+
+# Native deb packages avoid Snap AppArmor sandbox restrictions that prevent browsers from opening in XRDP sessions.
+- name: Add Mozilla Team PPA repository
+  apt_repository:
+    repo: ppa:mozillateam/ppa
+    state: present
+  become: true
+
+# Priority pinning forces APT to install the native deb from the PPA rather than Ubuntu's transitional snap-wrapper package.
+- name: Pin Mozilla PPA for native Firefox
+  copy:
+    dest: /etc/apt/preferences.d/mozilla-firefox
+    content: |
+      Package: *
+      Pin: release o=LP-PPA-mozillateam
+      Pin-Priority: 1001
+    owner: root
+    group: root
+    mode: "0644"
+  become: true
+
+- name: Install Firefox browser
+  apt:
+    name: firefox
+    state: present
+    update_cache: yes
   become: true
 
 - name: Add xrdp user to ssl-cert group
@@ -28,11 +56,12 @@
     state: present
   become: true
 
+# Wrapping XFCE in a D-Bus session ensures desktop applications and web browsers have an active session bus over XRDP.
 - name: Configure lean desktop session for SSH user (disable compositing)
   copy:
     content: |
       xfconf-query -c xfwm4 -p /general/use_compositing -s false 2>/dev/null || true
-      exec startxfce4
+      exec dbus-run-session -- startxfce4
     dest: "/home/{{ ssh_username }}/.xsession"
     owner: "{{ ssh_username }}"
     group: "{{ ssh_username }}"
@@ -43,7 +72,7 @@
   copy:
     content: |
       xfconf-query -c xfwm4 -p /general/use_compositing -s false 2>/dev/null || true
-      exec startxfce4
+      exec dbus-run-session -- startxfce4
     dest: /etc/skel/.xsession
     owner: root
     group: root
