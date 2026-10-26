@@ -29,5 +29,5 @@ fi
 export ANSIBLE_LOG_PATH=/tmp/ansible.log
 export GIT_SSH_COMMAND="ssh -i $SSH_USER_KEY_PATH -o UserKnownHostsFile=$SSH_USER_DIR/known_hosts"
 
-ansible-pull -U "${GIT_REPOSITORY}" ansible-playbook.yml
-ansible-pull -U "${GIT_REPOSITORY}" ansible-ssh-user.yml
+ansible-pull -U "${GIT_REPOSITORY}" ansible/vm/playbook.yml
+ansible-pull -U "${GIT_REPOSITORY}" ansible/vm/ssh-user.yml

@@ -3,10 +3,10 @@
 - hosts: localhost
   tasks:
     - name: Load instance metadata variables
-      include_tasks: ansible/playbook/variables.yml
+      include_tasks: ansible/vm/playbook/variables.yml
 
     - name: Environment bootstrap
-      include_tasks: ansible/playbook/bootstrap.yml
+      include_tasks: ansible/vm/playbook/bootstrap.yml
 
     - name: Update Cloudflare DNS A record
-      include_tasks: ansible/playbook/update-cloudflare-dns-a-record.yml
+      include_tasks: ansible/vm/playbook/update-cloudflare-dns-a-record.yml
