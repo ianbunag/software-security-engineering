@@ -1,0 +1,12 @@
+# Targeted for execution with Ansible.
+---
+- hosts: localhost
+  tasks:
+    - name: Load instance metadata variables
+      include_tasks: playbook/variables.yml
+
+    - name: Environment bootstrap
+      include_tasks: playbook/bootstrap.yml
+
+    - name: Update Cloudflare DNS A record
+      include_tasks: playbook/update-cloudflare-dns-a-record.yml

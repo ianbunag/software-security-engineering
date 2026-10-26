@@ -1,0 +1,13 @@
+# Targeted for execution with Ansible.
+---
+- name: Fetch instance metadata attributes
+  include_tasks: ../../fetch-gcp-instance-attribute.yml
+  loop:
+    - cloudflare_update_dns_token_secret_name
+    - cloudflare_zone_id
+    - cloudflare_record_id
+    - domain
+    - jammy_gui_secret_name
+  vars:
+    gcp_metadata_attribute: "{{ item }}"
+    gcp_metadata_fact: "{{ item }}"

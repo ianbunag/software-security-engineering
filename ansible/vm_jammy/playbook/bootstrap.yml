@@ -1,0 +1,11 @@
+# Targeted for execution with Ansible.
+---
+- name: Install bare minimum system packages
+  apt:
+    name:
+      - curl
+      - git
+    state: present
+    update_cache: yes
+    cache_valid_time: 86400
+  become: true

@@ -1,0 +1,21 @@
+# Targeted for execution with Ansible.
+---
+- name: Fetch instance metadata attributes
+  include_tasks: ../../fetch-gcp-instance-attribute.yml
+  loop:
+    - ssh_username
+    - git_repository
+    - git_email
+    - git_name
+  vars:
+    gcp_metadata_attribute: "{{ item }}"
+    gcp_metadata_fact: "{{ item }}"
+
+- name: Set derived facts
+  set_fact:
+    documents_dir: "/home/{{ ssh_username }}/Documents"
+
+- name: Set derived facts
+  set_fact:
+    git_repository_dir: "{{ documents_dir }}/cmpe-279-software-security-technologies"
+    remote_development_dir: "{{ documents_dir }}/remote-cmpe-279-software-security-technologies"
