@@ -3,14 +3,14 @@
 - hosts: localhost
   tasks:
     - name: Load instance metadata variables
-      include_tasks: ansible/vm/ssh-user/variables.yml
+      include_tasks: ssh-user/variables.yml
 
     - name: Execute user-scoped setup tasks
       block:
         - name: Environment bootstrap
-          include_tasks: ansible/vm/ssh-user/bootstrap.yml
+          include_tasks: ssh-user/bootstrap.yml
 
         - name: Sync git repository
-          include_tasks: ansible/vm/ssh-user/sync-git-repository.yml
+          include_tasks: ssh-user/sync-git-repository.yml
       become: true
       become_user: "{{ ssh_username }}"
