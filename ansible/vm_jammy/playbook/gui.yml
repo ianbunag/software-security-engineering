@@ -44,6 +44,91 @@
     update_cache: yes
   become: true
 
+# Set Firefox as the default system browser alternative for x-www-browser.
+- name: Set Firefox as default system web browser
+  command: update-alternatives --set x-www-browser /usr/bin/firefox
+  failed_when: false
+  become: true
+
+# Ensure XFCE configuration directories exist before deploying helper and panel configs.
+- name: Ensure XFCE config directories exist
+  file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "0755"
+  loop:
+    - { path: "/home/{{ ssh_username }}/.config/xfce4", owner: "{{ ssh_username }}", group: "{{ ssh_username }}" }
+    - { path: "/etc/skel/.config/xfce4", owner: "root", group: "root" }
+  become: true
+
+# Configure XFCE helper settings so the default browser launcher opens Firefox.
+- name: Configure XFCE preferred browser for SSH user
+  copy:
+    content: "WebBrowser=firefox\n"
+    dest: "/home/{{ ssh_username }}/.config/xfce4/helpers.rc"
+    owner: "{{ ssh_username }}"
+    group: "{{ ssh_username }}"
+    mode: "0644"
+  become: true
+
+- name: Configure XFCE preferred browser for skeleton
+  copy:
+    content: "WebBrowser=firefox\n"
+    dest: /etc/skel/.config/xfce4/helpers.rc
+    owner: root
+    group: root
+    mode: "0644"
+  become: true
+
+# Point the default bottom dock template to the official Firefox desktop launcher.
+- name: Set Firefox launcher in default XFCE panel template
+  replace:
+    path: /etc/xdg/xfce4/panel/default.xml
+    regexp: '(xfce4-web-browser\.desktop|exo-web-browser\.desktop)'
+    replace: 'firefox.desktop'
+  failed_when: false
+  become: true
+
+# Update existing dock browser launchers to display the official Firefox icon and launch Firefox directly.
+- name: Find existing browser dock launchers for SSH user
+  find:
+    paths: "/home/{{ ssh_username }}/.config/xfce4/panel"
+    patterns: "*.desktop"
+    recurse: yes
+    contains: ".*(web-browser|WebBrowser).*"
+  register: existing_dock_launchers
+  become: true
+
+- name: Update existing dock browser launchers to Firefox
+  copy:
+    src: /usr/share/applications/firefox.desktop
+    dest: "{{ item.path }}"
+    owner: "{{ ssh_username }}"
+    group: "{{ ssh_username }}"
+    mode: "0644"
+    remote_src: yes
+  loop: "{{ existing_dock_launchers.files }}"
+  become: true
+
+- name: Update user xfce4-panel.xml configuration to Firefox
+  replace:
+    path: "/home/{{ ssh_username }}/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml"
+    regexp: '(xfce4-web-browser\.desktop|exo-web-browser\.desktop)'
+    replace: 'firefox.desktop'
+  failed_when: false
+  become: true
+
+# Reload the panel to immediately reflect the Firefox icon on the active dock.
+- name: Reload XFCE panel for active user session
+  command: xfce4-panel -r
+  environment:
+    DISPLAY: ":10.0"
+  become: true
+  become_user: "{{ ssh_username }}"
+  failed_when: false
+
 - name: Add xrdp user to ssl-cert group
   user:
     name: xrdp
