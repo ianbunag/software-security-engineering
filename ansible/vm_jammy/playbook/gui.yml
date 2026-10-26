@@ -1,0 +1,125 @@
+# Targeted for execution with Ansible 2.17.14.
+---
+- name: Install lightweight remote GUI packages
+  apt:
+    name:
+      - xfce4
+      - xrdp
+      - xorgxrdp
+      - dbus-x11
+    state: present
+    update_cache: yes
+    cache_valid_time: 86400
+  become: true
+
+- name: Add xrdp user to ssl-cert group
+  user:
+    name: xrdp
+    groups: ssl-cert
+    append: yes
+  become: true
+
+# Defense-in-depth ensures XRDP is accessible only through the encrypted SSH tunnel, preventing internal VPC exposure.
+- name: Bind XRDP listening port strictly to localhost
+  lineinfile:
+    path: /etc/xrdp/xrdp.ini
+    regexp: "^port="
+    line: "port=tcp://127.0.0.1:3389"
+    state: present
+  become: true
+
+- name: Configure lean desktop session for SSH user (disable compositing)
+  copy:
+    content: |
+      xfconf-query -c xfwm4 -p /general/use_compositing -s false 2>/dev/null || true
+      exec startxfce4
+    dest: "/home/{{ ssh_username }}/.xsession"
+    owner: "{{ ssh_username }}"
+    group: "{{ ssh_username }}"
+    mode: "0755"
+  become: true
+
+- name: Configure lean default desktop session for skeleton
+  copy:
+    content: |
+      xfconf-query -c xfwm4 -p /general/use_compositing -s false 2>/dev/null || true
+      exec startxfce4
+    dest: /etc/skel/.xsession
+    owner: root
+    group: root
+    mode: "0755"
+  become: true
+
+- name: Ensure polkit localauthority directory exists
+  file:
+    path: /etc/polkit-1/localauthority/50-local.d
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  become: true
+
+- name: Configure polkit rules to prevent GUI session authentication popups
+  copy:
+    dest: /etc/polkit-1/localauthority/50-local.d/45-allow-colord.pkla
+    content: |
+      [Allow Colord all Users]
+      Identity=unix-user:*
+      Action=org.freedesktop.color-manager.create-device;org.freedesktop.color-manager.create-profile;org.freedesktop.color-manager.delete-device;org.freedesktop.color-manager.delete-profile;org.freedesktop.color-manager.modify-device;org.freedesktop.color-manager.modify-profile
+      ResultAny=no
+      ResultInactive=no
+      ResultActive=yes
+
+      # Restricting authorization strictly to active sessions prevents unauthenticated background actions.
+      [Allow PackageKit all Users]
+      Identity=unix-user:*
+      Action=org.freedesktop.packagekit.system-sources-refresh
+      ResultAny=no
+      ResultInactive=no
+      ResultActive=yes
+    owner: root
+    group: root
+    mode: "0644"
+  become: true
+
+- name: Fetch GUI password from GCP Secret Manager
+  command: "gcloud secrets versions access latest --secret={{ jammy_gui_secret_name }}"
+  register: gui_password_result
+  changed_when: false
+  no_log: true
+
+- name: Set runtime GUI password fact
+  set_fact:
+    gui_password: "{{ gui_password_result.stdout | trim }}"
+  no_log: true
+
+- name: Set user password for remote GUI authentication
+  command: chpasswd
+  args:
+    stdin: "{{ ssh_username }}:{{ gui_password }}"
+  no_log: true
+  become: true
+
+# Setting a local UNIX password enables PAM authentication; SSH must explicitly forbid password auth to avoid public brute-force attacks.
+- name: Enforce disabled SSH password authentication
+  copy:
+    dest: /etc/ssh/sshd_config.d/60-disable-password-auth.conf
+    content: "PasswordAuthentication no\n"
+    owner: root
+    group: root
+    mode: "0644"
+  become: true
+
+# Reloading sshd applies configuration immediately without dropping active SSH connections.
+- name: Reload SSH service
+  systemd:
+    name: ssh
+    state: reloaded
+  become: true
+
+- name: Enable and restart xrdp service
+  systemd:
+    name: xrdp
+    state: restarted
+    enabled: yes
+  become: true

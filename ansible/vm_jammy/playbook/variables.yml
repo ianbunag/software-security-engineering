@@ -1,8 +1,9 @@
-# Targeted for execution with Ansible.
+# Targeted for execution with Ansible 2.17.14.
 ---
 - name: Fetch instance metadata attributes
   include_tasks: ../../fetch-gcp-instance-attribute.yml
   loop:
+    - ssh_username
     - cloudflare_update_dns_token_secret_name
     - cloudflare_zone_id
     - cloudflare_record_id

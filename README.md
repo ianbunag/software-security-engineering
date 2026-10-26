@@ -109,7 +109,7 @@ This allows CLion to resolve the execution context and index project symbols, en
 
 ### 1. SSH Configuration
 
-Add the host entry to your `~/.ssh/config`:
+Add the host entries to your `~/.ssh/config`:
 
 ```ssh-config
 Host cmpe-279
@@ -118,6 +118,14 @@ Host cmpe-279
     UserKnownHostsFile /dev/null
     RequestTTY yes
     RemoteCommand cd ~/Documents/remote-cmpe-279-software-security-technologies && exec $SHELL -l
+
+Host cmpe-279-jammy
+    HostName cmpe-279-jammy.<root_domain>
+    StrictHostKeyChecking no
+    UserKnownHostsFile /dev/null
+    RequestTTY yes
+    LocalForward 3389 127.0.0.1:3389
+    RemoteCommand cd ~/Documents/remote-cmpe-279-software-security-technologies && exec $SHELL -l
 ```
 
 ### 2. Connect via SSH
@@ -125,8 +133,27 @@ Host cmpe-279
 Connect directly using the alias:
 
 ```bash
+# Ubuntu 16.04 VM (C Lab)
 ssh cmpe-279
+
+# Ubuntu 22.04 VM (Python Lab with Remote GUI)
+ssh cmpe-279-jammy
 ```
+
+### 3. Remote Desktop GUI Connection (Ubuntu 22.04)
+
+Connect to the XFCE desktop through the encrypted SSH tunnel:
+
+1. Keep your SSH session to `cmpe-279-jammy` active in a terminal window (this maintains the `3389 -> 127.0.0.1:3389` port forward):
+   ```bash
+   ssh cmpe-279-jammy
+   ```
+2. Open **Windows App** / **Microsoft Remote Desktop** (or any RDP client) and configure a new connection:
+   - **PC Name**: `127.0.0.1:3389`
+   - **User Account**:
+     - **Username**: Value of `ssh_username` in [terraform/variables.tf](terraform/variables.tf)
+     - **Password**: The secret value stored in Secret Manager for `cmpe-279-jammy-gui-password`
+3. Connect and log into the XFCE desktop.
 
 ## Background Shells with tmux
 
