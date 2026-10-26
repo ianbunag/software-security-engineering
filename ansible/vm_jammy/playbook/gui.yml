@@ -18,6 +18,10 @@
   apt_repository:
     repo: ppa:mozillateam/ppa
     state: present
+  register: ppa_add_result
+  until: ppa_add_result is succeeded
+  retries: 5
+  delay: 5
   become: true
 
 # Priority pinning forces APT to install the native deb from the PPA rather than Ubuntu's transitional snap-wrapper package.
