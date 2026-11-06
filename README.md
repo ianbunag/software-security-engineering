@@ -125,6 +125,7 @@ Host cmpe-279-jammy
     UserKnownHostsFile /dev/null
     RequestTTY yes
     LocalForward 3389 127.0.0.1:3389
+    LocalForward 5000 127.0.0.1:5000
     RemoteCommand cd ~/Documents/remote-cmpe-279-software-security-technologies && exec $SHELL -l
 ```
 
