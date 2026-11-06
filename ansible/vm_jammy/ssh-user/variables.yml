@@ -19,3 +19,4 @@
   set_fact:
     git_repository_dir: "{{ documents_dir }}/cmpe-279-software-security-technologies"
     remote_development_dir: "{{ documents_dir }}/remote-cmpe-279-software-security-technologies"
+    python_venv_dir: "{{ documents_dir }}/.venv"

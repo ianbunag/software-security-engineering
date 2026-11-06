@@ -12,6 +12,11 @@
     state: directory
     mode: "0755"
 
+- name: Create Python virtual environment
+  command: "python3 -m venv {{ python_venv_dir }}"
+  args:
+    creates: "{{ python_venv_dir }}/bin/activate"
+
 - name: Configure shell aliases
   lineinfile:
     path: "/home/{{ ssh_username }}/.bashrc"
@@ -23,3 +28,4 @@
     - 'alias history="history 1"'
     - 'alias h="history"'
     - 'alias g="git"'
+    - 'alias activate="source {{ python_venv_dir }}/bin/activate"'

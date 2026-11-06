@@ -33,3 +33,8 @@
   when:
     - git_status_check.rc == 0
     - git_status_check.stdout == ""
+
+- name: Install dependencies from repository requirements.txt
+  command: "{{ python_venv_dir }}/bin/pip install -r {{ git_repository_dir }}/requirements.txt"
+  register: pip_install_result
+  changed_when: "'Successfully installed' in pip_install_result.stdout"
