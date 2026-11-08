@@ -60,18 +60,32 @@ def login():
 @app.route("/login_action",methods = ["POST","GET"])
 def login_action():
     if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
-        print("username="+username)
-        # Dummy user validation
-        if (username == "admin" or username == "guest") and password == "password":
-            session["username"] = username
-            print("before redirect to homepage username="+session["username"])
-            #session.modified = True
-            #time.sleep(1)
-            return redirect(url_for("homepage"))
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "")
 
-    return render_template("login.html")
+        passwd_path = Path("passwd.txt")
+        if passwd_path.is_file():
+            with open("passwd.txt", "r") as passwdfile:
+                lines = [line.strip() for line in passwdfile]
+
+            for i in range(0, len(lines) - 2, 3):
+                stored_user = lines[i]
+                if stored_user == username:
+                    salt_hex = lines[i + 1]
+                    hash_hex = lines[i + 2]
+                    try:
+                        stored_salt = bytes.fromhex(salt_hex)
+                        stored_hash = bytes.fromhex(hash_hex)
+                        if verify_password_pbkdf2(password, stored_salt, stored_hash):
+                            session["username"] = username
+                            return redirect(url_for("homepage"))
+                    except ValueError:
+                        break
+                    break
+
+        return redirect(url_for("login"))
+
+    return redirect(url_for("login"))
 
 @app.route("/homepage_action",methods = ["POST","GET"])
 def homepage_action():

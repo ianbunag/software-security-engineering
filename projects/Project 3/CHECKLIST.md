@@ -15,10 +15,10 @@
     - Line 1: `user (email)`
     - Line 2: `salt`
     - Line 3: `hashed_password`
-- [ ] Enhance `login_action`
-  - [ ] Read `passwd.txt` and match login username
-  - [ ] Call `verify_password_pbkdf2(login_password, salt_from_passwd, hash_from_passwd)`
-  - [ ] Authenticate user if hash matches
+- [x] Enhance `login_action`
+  - [x] Read `passwd.txt` and match login username
+  - [x] Call `verify_password_pbkdf2(login_password, salt_from_passwd, hash_from_passwd)`
+  - [x] Authenticate user if hash matches
 - [ ] Submission (Due: Nov 30, 2026 11:59pm)
   - [ ] Create archive: `tar cvf ./blogapp279.tar ./blogapp279`
   - [ ] Send single email with 1 attachment (`blogapp279.tar`) to:
