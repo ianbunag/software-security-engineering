@@ -1,12 +1,12 @@
 # Checklist
 
-- [ ] Setup & Exploration
+- [x] Setup & Exploration
   - [x] Extract `blogapp279.tar`
-  - [ ] Verify existing hardcoded accounts (`admin`, `guest`) run with `python blogapp.py`
-- [ ] PBKDF2 Integration (from https://db4.us/cmpe279/DemoSalt.py)
-  - [ ] Integrate `def hash_password_pbkdf2(plain_text_password: str)`
-  - [ ] Integrate `def verify_password_pbkdf2(plain_text_password: str, stored_salt: bytes, stored_hash: bytes) -> bool:`
-  - [ ] Verify hashing uses SHA-256 with 600,000 iterations
+  - [x] Verify existing hardcoded accounts (`admin`, `guest`) run with `python blogapp.py`
+- [x] PBKDF2 Integration (from https://db4.us/cmpe279/DemoSalt.py)
+  - [x] Integrate `def hash_password_pbkdf2(plain_text_password: str)`
+  - [x] Integrate `def verify_password_pbkdf2(plain_text_password: str, stored_salt: bytes, stored_hash: bytes) -> bool:`
+  - [x] Verify hashing uses SHA-256 with 600,000 iterations
 - [ ] Implement `signup_action`
   - [ ] Read fields from signup form: username (email), password, confirm password
   - [ ] Validate username format (email) and password confirmation match

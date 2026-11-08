@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, make_response
 from pathlib import Path
 import time
+from hash import hash_password_pbkdf2, verify_password_pbkdf2
 
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
