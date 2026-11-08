@@ -26,6 +26,6 @@ def verify_password_pbkdf2(plain_text_password: str, stored_salt: bytes, stored_
     )
 
     if (stored_hash == new_hash):
-        return 1
+        return True
     else:
-        return 0
+        return False
