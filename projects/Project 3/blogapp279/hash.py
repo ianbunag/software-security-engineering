@@ -25,11 +25,6 @@ def verify_password_pbkdf2(plain_text_password: str, stored_salt: bytes, stored_
         600000
     )
 
-    # Use hmac.compare_digest to safely compare strings and prevent timing attacks
-    print("comparing")
-    print(stored_hash)
-    print(new_hash)
-    #return hashlib.hmac.compare_digest(new_hash, stored_hash)
     if (stored_hash == new_hash):
         return 1
     else:
