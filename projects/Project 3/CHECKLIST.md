@@ -7,11 +7,11 @@
   - [x] Integrate `def hash_password_pbkdf2(plain_text_password: str)`
   - [x] Integrate `def verify_password_pbkdf2(plain_text_password: str, stored_salt: bytes, stored_hash: bytes) -> bool:`
   - [x] Verify hashing uses SHA-256 with 600,000 iterations
-- [ ] Implement `signup_action`
-  - [ ] Read fields from signup form: username (email), password, confirm password
-  - [ ] Validate username format (email) and password confirmation match
-  - [ ] Generate salt and compute salted PBKDF2 hash
-  - [ ] Store 3 lines per user in `passwd.txt`:
+- [x] Implement `signup_action`
+  - [x] Read fields from signup form: username (email), password, confirm password
+  - [x] Validate username format (email) and password confirmation match
+  - [x] Generate salt and compute salted PBKDF2 hash
+  - [x] Store 3 lines per user in `passwd.txt`:
     - Line 1: `user (email)`
     - Line 2: `salt`
     - Line 3: `hashed_password`
