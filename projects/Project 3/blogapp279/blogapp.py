@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, make_response
 from pathlib import Path
 import time
+from hash import hash_password_pbkdf2, verify_password_pbkdf2
 
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
@@ -19,22 +20,34 @@ def signup():
     return render_template("signup.html")
 
 @app.route("/signup_action",methods = ["POST","GET"])
-#
-# This method needs to be enhanced...
-#
 def signup_action():
     if request.method == "POST":
-        username = request.form["email"]
-        password = request.form["password"]
-        password2 = request.form["password2"]
-        # Dummy user validation
-        if (username != "admin" and username != "guest" and password == password2):
-            passwdfile = open("passwd.txt", "a")  # append mode
-            passwdfile.write(username+"\n")
-            passwdfile.write(password+"\n")
-            passwdfile.close()
+        username = request.form.get("email", "").strip()
+        password = request.form.get("password", "")
+        password2 = request.form.get("password2", "")
 
-    return render_template("login.html")
+        if username and password and password == password2:
+            user_exists = False
+            passwd_path = Path("passwd.txt")
+            if passwd_path.is_file():
+                with open("passwd.txt", "r") as passwdfile:
+                    lines = [line.strip() for line in passwdfile]
+                for i in range(0, len(lines), 3):
+                    if lines[i] == username:
+                        user_exists = True
+                        break
+
+            if not user_exists:
+                salt, hashed = hash_password_pbkdf2(password)
+                with open("passwd.txt", "a") as passwdfile:
+                    passwdfile.write(username + "\n")
+                    passwdfile.write(salt.hex() + "\n")
+                    passwdfile.write(hashed.hex() + "\n")
+                return redirect(url_for("login"))
+
+        return redirect(url_for("signup"))
+
+    return redirect(url_for("signup"))
 
 # main driver function
 @app.route("/login")
@@ -47,18 +60,32 @@ def login():
 @app.route("/login_action",methods = ["POST","GET"])
 def login_action():
     if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
-        print("username="+username)
-        # Dummy user validation
-        if (username == "admin" or username == "guest") and password == "password":
-            session["username"] = username
-            print("before redirect to homepage username="+session["username"])
-            #session.modified = True
-            #time.sleep(1)
-            return redirect(url_for("homepage"))
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "")
 
-    return render_template("login.html")
+        passwd_path = Path("passwd.txt")
+        if passwd_path.is_file():
+            with open("passwd.txt", "r") as passwdfile:
+                lines = [line.strip() for line in passwdfile]
+
+            for i in range(0, len(lines) - 2, 3):
+                stored_user = lines[i]
+                if stored_user == username:
+                    salt_hex = lines[i + 1]
+                    hash_hex = lines[i + 2]
+                    try:
+                        stored_salt = bytes.fromhex(salt_hex)
+                        stored_hash = bytes.fromhex(hash_hex)
+                        if verify_password_pbkdf2(password, stored_salt, stored_hash):
+                            session["username"] = username
+                            return redirect(url_for("homepage"))
+                    except ValueError:
+                        break
+                    break
+
+        return redirect(url_for("login"))
+
+    return redirect(url_for("login"))
 
 @app.route("/homepage_action",methods = ["POST","GET"])
 def homepage_action():
