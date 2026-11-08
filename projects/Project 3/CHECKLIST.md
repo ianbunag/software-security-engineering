@@ -1,7 +1,7 @@
 # Checklist
 
 - [ ] Setup & Exploration
-  - [ ] Extract `blogapp279.tar`
+  - [x] Extract `blogapp279.tar`
   - [ ] Verify existing hardcoded accounts (`admin`, `guest`) run with `python blogapp.py`
 - [ ] PBKDF2 Integration (from https://db4.us/cmpe279/DemoSalt.py)
   - [ ] Integrate `def hash_password_pbkdf2(plain_text_password: str)`
