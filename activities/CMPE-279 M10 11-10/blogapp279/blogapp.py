@@ -58,6 +58,20 @@ def login_action():
             #session.modified = True
             #time.sleep(1)
             return redirect(url_for("homepage"))
+        else:
+            if Path("passwd.txt").is_file():
+                print("The file passwd.txt exists.")
+                with open("passwd.txt", "r") as passwdfile:
+                    username2 = passwdfile.readline().rstrip()
+                    password2 = passwdfile.readline().strip()  # Will be empty string "
+                    print("username2=" + username2)
+                    print("password2=" + password2)
+                    if username == username2 and password == password2:
+                        session["username"] = username
+                        print("before redirect to homepage username=" + session["username"])
+                        return redirect(url_for("homepage"))
+            else:
+                print("The file passwd.txt does not exist.")
 
     return render_template("login.html")
 
