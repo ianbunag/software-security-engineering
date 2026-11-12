@@ -62,14 +62,19 @@ def login_action():
             if Path("passwd.txt").is_file():
                 print("The file passwd.txt exists.")
                 with open("passwd.txt", "r") as passwdfile:
-                    username2 = passwdfile.readline().rstrip()
-                    password2 = passwdfile.readline().strip()  # Will be empty string "
-                    print("username2=" + username2)
-                    print("password2=" + password2)
-                    if username == username2 and password == password2:
-                        session["username"] = username
-                        print("before redirect to homepage username=" + session["username"])
-                        return redirect(url_for("homepage"))
+                    while True:
+                        username2 = passwdfile.readline().rstrip()
+                        if not username2:
+                            break
+                        password2 = passwdfile.readline().strip()  # Will be empty string "
+                        if not password2:
+                            break
+                        print("username2=" + username2)
+                        print("password2=" + password2)
+                        if username == username2 and password == password2:
+                            session["username"] = username
+                            print("before redirect to homepage username=" + session["username"])
+                            return redirect(url_for("homepage"))
             else:
                 print("The file passwd.txt does not exist.")
 
@@ -138,6 +143,14 @@ def homepage():
 def logout():
     session.pop("username", None)
     return render_template("login.html")
+
+@app.route("/postit3")
+def postit3():
+    return render_template("postit3.html")
+
+@app.route("/attacker")
+def attacker():
+    return render_template("attacker.html")
 
 # main driver function
 if __name__ == "__main__":
